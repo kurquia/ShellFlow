@@ -1,0 +1,56 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+.envrc
+
+# Test / lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Claude Code local state
+.claude/
+
+# Data files (place datasets under data/ at the repo root; see README)
+/data/
+*.root
+*.npz
+*.pkl
+*.parquet
+
+# Model checkpoints
+/checkpoints/
+*.pt
+*.pth
+*.ckpt
+
+# Experiment tracking / logs
+wandb/
+lightning_logs/
+*.log

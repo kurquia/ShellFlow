@@ -1,0 +1,38 @@
+4lep:
+  config_path: src/shellflow/config/dataloader_config_06_4lep.yaml
+  data_dir: data/run2_data_4lep_converted
+
+exactly3lep:
+  config_path: src/shellflow/config/dataloader_config_06_exactly3lep.yaml
+  data_dir: data/run2_data_exactly3lep_converted
+
+GamGam:
+  config_path: src/shellflow/config/dataloader_config_06_GamGam.yaml
+  data_dir: data/run2_data_GamGam_converted
+
+2to4lep:
+  config_path: src/shellflow/config/dataloader_config_06_2to4lep.yaml
+  data_dir: data/run2_data_2to4lep_converted
+
+# Reduced datasets (max 8 particles per event)
+4lep_reduced:
+  config_path: src/shellflow/config/dataloader_config_06_4lep_reduced.yaml
+  data_dir: data/run2_data_4lep_reduced
+
+exactly3lep_reduced:
+  config_path: src/shellflow/config/dataloader_config_06_exactly3lep_reduced.yaml
+  data_dir: data/run2_data_exactly3lep_reduced
+
+GamGam_reduced:
+  config_path: src/shellflow/config/dataloader_config_06_GamGam_reduced.yaml
+  data_dir: data/run2_data_GamGam_reduced
+
+2to4lep_reduced:
+  config_path: src/shellflow/config/dataloader_config_06_2to4lep_reduced.yaml
+  data_dir: data/run2_data_2to4lep_reduced
+
+# Merged 1LMET30 ∪ 2to4lep skim (same Run-2 data, de-duplicated). ~825M events,
+# ≤8 particles/event (reduced) — ~2.9× larger than 2to4lep_reduced.
+1LMET30_2to4lep_reduced:
+  config_path: src/shellflow/config/dataloader_config_06_1LMET30_2to4lep_reduced.yaml
+  data_dir: data/run2_1LMET30_2to4lep_reduced

@@ -1,0 +1,85 @@
+# ATLAS Open Data dataset configurations
+#
+# NOTE: output_dir paths should be customized for your environment.
+# Paths are relative to the repo root (run the downloader from there).
+
+# 4-lepton datasets (small, good for development)
+mc_4lep:
+  url: 'https://opendata.cern.ch/record/93932'
+  output_dir: 'data/root_datasets/4leptons'
+  description: 'Monte Carlo 4-lepton events (simulation)'
+  type: 'mc'
+
+real_data_4lep:
+  url: 'https://opendata.cern.ch/record/93918'
+  output_dir: 'data/root_datasets/4leptons_real'
+  description: 'Real ATLAS 4-lepton events (data)'
+  type: 'real'
+
+# ATLAS Run2 2015 datasets (larger, for pretraining)
+# Override output_dir for your environment
+1LMET30:
+  url: 'https://opendata.cern.ch/record/93929'
+  output_dir: 'data/root_datasets/run2_data_1LMET30'
+  description: 'At least 1 lepton with pT > 7 and MET > 30 (133.4 GB)'
+  type: 'real'
+
+2to4lep:
+  url: 'https://opendata.cern.ch/record/93919'
+  output_dir: 'data/root_datasets/run2_data_2to4lep'
+  description: '2 to 4 leptons, all with pT > 7 (74.2 GB)'
+  type: 'real'
+
+2bjets:
+  url: 'https://opendata.cern.ch/record/93927'
+  output_dir: 'data/root_datasets/run2_data_2bjets'
+  description: '2 jets with pT > 20 and one of which is a B (36.2 GB)'
+  type: 'real'
+
+3J1LMET30:
+  url: 'https://opendata.cern.ch/record/93916'
+  output_dir: 'data/root_datasets/run2_data_3J1LMET30'
+  description: 'At least 3 jets with pT > 20, at least 1 lepton with pT > 3, and MET > 30 (36.6 GB)'
+  type: 'mc'
+
+2muons:
+  url: 'https://opendata.cern.ch/record/93921'
+  output_dir: 'data/root_datasets/run2_data_2muons'
+  description: 'Events with at least 2 muons with pT > 10 (18.3 GB)'
+  type: 'real'
+
+GamGam:
+  url: 'https://opendata.cern.ch/record/93915'
+  output_dir: 'data/root_datasets/run2_data_GamGam'
+  description: 'Two photons with pT > 25 (9.2 GB)'
+  type: 'real'
+
+3lep:
+  url: 'https://opendata.cern.ch/record/93912'
+  output_dir: 'data/root_datasets/run2_data_3lep'
+  description: 'At least 3 leptons with pT > 7 (5.5 GB)'
+  type: 'real'
+
+exactly3lep:
+  url: 'https://opendata.cern.ch/record/93917'
+  output_dir: 'data/root_datasets/run2_data_exactly3lep'
+  description: 'Exactly 3 leptons with pT > 7 (4.8 GB)'
+  type: 'real'
+
+2J2LMET30:
+  url: 'https://opendata.cern.ch/record/93934'
+  output_dir: 'data/root_datasets/run2_data_2J2LMET30'
+  description: 'At least two jets with pT > 20, at least two leptons with pT > 7, and MET > 30 (1.9 GB)'
+  type: 'real'
+
+4lep:
+  url: 'https://opendata.cern.ch/record/93918'
+  output_dir: 'data/root_datasets/run2_data_4lep'
+  description: 'At least 4 leptons with pT > 7 (0.627 GB)'
+  type: 'real'
+
+exactly4lep:
+  url: 'https://opendata.cern.ch/record/93924'
+  output_dir: 'data/root_datasets/run2_data_exactly4lep'
+  description: 'Exactly 4 leptons with pT > 7'
+  type: 'real'

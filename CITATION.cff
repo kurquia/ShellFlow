@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+title: "ShellFlow"
+type: software
+authors:
+  - family-names: Kato
+    given-names: Midori
+  - family-names: "Urquía-Calderón"
+    given-names: "Kevin A."
+  - family-names: Timiryasov
+    given-names: Inar
+  - family-names: Ruchayskiy
+    given-names: Oleg
+license: MIT
+preferred-citation:
+  type: article
+  title: "Learning Standard Model structure from LHC data with Riemannian flow matching"
+  authors:
+    - family-names: Kato
+      given-names: Midori
+    - family-names: "Urquía-Calderón"
+      given-names: "Kevin A."
+    - family-names: Timiryasov
+      given-names: Inar
+    - family-names: Ruchayskiy
+      given-names: Oleg
+  year: 2026
+  identifiers:
+    - type: other
+      value: "arXiv:2607.16144"
+      description: "arXiv preprint"
+  url: "https://arxiv.org/abs/2607.16144"

@@ -1,0 +1,229 @@
+# =============================================================================
+# E1 ABLATION (V2_manifold_noaux) — 2-epoch controlled retrain for the PRX submission.
+#
+# V2: manifold WITHOUT aux head. On-shell chart + S² geodesics as in V0;
+# aux_head.enabled false (hierarchical + distribution_matching off with it
+# — the module hard-requires the master flag).
+#
+# Base: train_riemannian_DiTs_1LMET30_2to4lep.yaml (paper run cft8v3el) at
+# commit eccb787, branch ablation/e1-submission. Differences from the base,
+# common to all four variants:
+#   - epochs: 30 -> 2 (reduced horizon, same for all variants)
+#   - batch_size: 4096 -> 8192 per device (4 GPUs -> same 32,768 effective
+#     batch as the 8-GPU paper run; lr 6e-4 unchanged)
+#   - checkpoint dir + wandb name/tags per variant
+# Variant-specific keys are marked "# ABLATION" inline. Everything else is
+# byte-identical to the base config.
+# Dataset: 1LMET30_2to4lep_reduced. Launch on GPUs 0-3.
+# =============================================================================
+# Resume Settings
+# =============================================================================
+resume:
+  checkpoint_path: null
+  finetune_from: null
+
+# =============================================================================
+# Model Architecture  (identical to train_riemannian_DiTs_aux_hierarchical.yaml)
+# =============================================================================
+model:
+  d_model: 128
+  num_heads: 4
+  num_layers: 6
+  max_particles: 10
+  mlp_ratio: 4.0
+  dropout: 0.0
+  num_extra_features: 13
+  met_embed_dim: 64
+  num_met_tokens: 4
+  per_particle_adaln: true
+
+  direction_geometry: "S2"
+  sigma_prior: 1.0
+  t_sample_method: "uniform"
+  t_sample_mu: 0.0
+  t_sample_sigma: 1.0
+  t_power_exponent: 1.5
+  t_min: 0.01
+  t_max: 0.999999
+
+  loss_weighting_t: false
+  loss_weighting_t_bins: 16
+  loss_weighting_t_warmup: 2000
+  loss_weighting_t_alpha: 0.01
+  loss_weighting_t_temp: 1.0
+
+  ema_decay: 0.9995
+  huber_delta: 1.0
+  pbfm_K: 4
+  aux_every_n_steps: 1
+
+  aux_head:
+    enabled: false            # ABLATION: no auxiliary K-body head
+    lambda_pos: 1.0
+    lambda_vel: 1.0
+    pos_t_gate: 0.99
+    k_max: 4
+    k_weights:
+      "2": 1.0
+      "3": 1.0
+      "4": 1.0
+    hierarchical:
+      enabled: false          # ABLATION: requires aux_head.enabled
+    distribution_matching:
+      enabled: false          # ABLATION: requires aux_head.enabled
+      dataloader_config: src/shellflow/config/dataloader_config_06_1LMET30_2to4lep_reduced.yaml
+      bandwidth: 0.01
+      grid_size: 4096
+      grid_lo: -3.0
+      grid_hi: 6.0
+      max_events: 100000
+      max_kde_samples: 200000
+      alpha: 1.0          # outer exponent: sets ceiling (1/η)^α and far-field decay
+      eta: 0.3333         # truth-prior mix; ceiling (1/η)^α = 3.0 at α=1 (boost cap)
+      sharpness: 5.0      # k: exponent on r=p̂_gen/p̂_truth. w*=((1-η)·r^k+η)^(-α).
+                          # k=5 = sharp S-curve concentrated at r=1 (capped boost 3,
+                          # suppression →0). 1.0 would be the original gentle curve.
+      category_scheme: type_charge
+      category_min_samples: 2000
+
+# =============================================================================
+# Quality weighting (consolidated; identical to train_riemannian_DiTs_aux_hierarchical.yaml)
+# =============================================================================
+quality_weighting:
+  enabled: true
+  cfm_q_floor: 0.5
+  iso_cut_lep: 0.15
+  iso_alpha_lep: 10.0
+  ip_cut_lep: 3.0
+  ip_alpha_lep: 1.0
+  iso_cut_photon: 0.15
+  iso_alpha_photon: 10.0
+  jvt_cut_jet: 0.5
+  jvt_alpha_jet: 5.0
+  rnn_cut_tau: 0.5
+  rnn_alpha_tau: 5.0
+  d2_cut_lrj: 1.5
+  d2_alpha_lrj: 5.0
+
+# =============================================================================
+# Optimizer / scheduler / data / training
+# =============================================================================
+optimizer:
+  # Linear-scaled for the 8-GPU run (effective batch 32,768 = 2× the 4-GPU
+  # 16,384): lr = 2 × 3e-4 = 6e-4. The 8-GPU batch does half the optimizer
+  # steps per epoch, and its less-noisy gradient affords the larger step.
+  # If launching on 4 GPU instead (batch 16,384), set this back to 3e-4.
+  # If 6e-4 looks unstable in the first few k steps, back off toward 5e-4.
+  lr: 0.0006
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+
+scheduler:
+  name: cosine
+  # Absolute warmup — GPU-invariant and tracks what warmup actually depends on
+  # (optimizer settling + the large 16-32k effective batch). A %-of-total ramp
+  # would be ~1.5 epochs here AND scale the wrong way with GPU count (fewer
+  # steps for the bigger batch). 10k steps is a solid ramp without overshooting.
+  warmup_pct: null
+  warmup_steps: 10000
+  min_lr: 1.0e-6
+
+data:
+  dataset: 1LMET30_2to4lep_reduced
+  train_split: 0.95
+  batch_size: 8192                # ABLATION: per-device; 4 GPU → 32,768 effective (= paper run)
+  num_workers: 8                  # 8/rank (down from 16): disk is no longer the
+                                  # bottleneck after MADV_RANDOM, so fewer workers
+                                  # still feed the GPUs while freeing ~400GB RAM
+                                  # for page cache (more dataset cached, less
+                                  # prefetch over-read).
+  lazy_loading: true
+  normalize: true
+  pin_memory: true
+  persistent_workers: true
+  prefetch_factor: 4
+
+training:
+  # Regular (natural) epoch — one full pass over the train set each epoch.
+  # Validation is still capped (limit_val_batches) so the per-epoch validation
+  # is a cheap spot-check rather than the full ~5% (~41M-event) split — the cap
+  # is independent of the epoch definition.
+  limit_train_batches: null       # natural epoch (no virtual-epoch cap)
+  limit_val_batches: 200          # spot-check val (~3.3M events)
+  epochs: 2                       # ABLATION: reduced horizon, identical across variants.
+  grad_clip: 1.0
+  seed: 42
+  log_every_n_steps: 50
+  val_checks_per_epoch: 3         # validation + last-checkpoint 3x per epoch
+                                  # (~every 45 min) so a crash can't cost a whole
+                                  # ~2.3h epoch. Val is capped (limit_val_batches),
+                                  # so the extra cost is a few min/epoch — negligible.
+  compile_model: true
+  compile_mode: default          # NOT max-autotune: its CUDA graphs were the
+                                 # common cause of the gen-KDE aliasing crash,
+                                 # the OOM, and the resume incompatibility. Plain
+                                 # compile keeps most of the speed without the
+                                 # CUDA-graph machinery, and relaunches ~3x faster.
+  test_mode: false
+  test_mode_samples: 1000
+
+generation:
+  enabled: true
+  num_samples: 50000
+  batch_size: 4096
+  n_gen_steps: 200
+  every_n_epochs: 2               # kinematic/Higgs plots cadence (epoch-based)
+  higgs:
+    enabled: true
+    every_n_epochs: 4
+    dataloader_config: src/shellflow/config/dataloader_config_06_1LMET30_2to4lep_reduced.yaml
+    data_dir: data/run2_data_4lep_reduced
+    batch_size: 16384
+    shard_dir: /tmp/higgs_shards
+  # Dedicated 2to4lep reference for the OSSF invariant-mass panels ONLY (mirrors
+  # the higgs 4lep reference). On this union run, ~⅔ of events are single-lepton
+  # and yield no OSSF pair, so a plain 50k-union sample gives ~⅓ the pairs.
+  # Drawing 50k from a 2to4lep dataset restores baseline OSSF statistics. Union
+  # normalization (dataloader_config) + 2to4lep data_dir (the cut). Other panels
+  # (per-particle kinematics, etc.) still use the full-union val sample. Omit on
+  # a 2to4lep run — the cut is then skipped.
+  monitor:
+    dataloader_config: src/shellflow/config/dataloader_config_06_1LMET30_2to4lep_reduced.yaml
+    data_dir: data/run2_data_2to4lep_reduced
+
+# DM gen-KDE — a SEPARATE generation from the monitoring plots above.
+# Purpose: produce p̂_gen for the TRAINING weight w* (not result-checking).
+# Generated from the TRAIN split (no train/val leak), step-based + EMA-accumulated.
+# refresh_steps: every N optimizer steps (~24 refreshes/epoch on 1LMET30,
+#   ~5% overhead at 4 GPU). null → legacy epoch-based refresh.
+# num_samples / n_steps: its own budget, independent of the monitoring gen
+#   (needs the resonance peaks, not publication-quality samples; keep n_steps
+#   ≥100 to avoid mass bias).
+gen_kde:
+  refresh_steps: 2000
+  ema: 0.3
+  num_samples: 50000
+  n_steps: 200
+
+checkpoint:
+  dir: checkpoints/ablation_e1/V2_manifold_noaux
+  save_every_n_epochs: 1          # 1 checkpoint/virtual epoch
+  save_top_k: 3
+
+early_stopping:
+  enabled: false
+  patience: 10
+  min_delta: 0.0001
+
+wandb:
+  enabled: true
+  project: shellflow
+  name: rfm_ablE1_V2_manifold_noaux
+  tags: [ablation_e1, V2_manifold_noaux, epochs2, gpu4_batch8192, riemannian, rfm, 1LMET30_2to4lep_reduced, data06, quality_weighted, cfm_particleness, cfm_q_floor_05, depth_l6, width_d128, per_particle_adaln, film_extras, film_always_on, s2, huber, post_ema_broadcast_fix, legacy_chart, mu_onshell, tau_floor_005, big_dataset, no_aux_head]
+  run_id: null
+  save_code: true
+  log_model: false
+
+device: auto
+precision: "bf16-mixed"
