@@ -610,7 +610,7 @@ def main():
         # vector stream of the slim layers.
         torch.set_float32_matmul_precision("highest")
         torch.backends.cudnn.allow_tf32 = False
-        from shellflow.models.riemannian_DiTs_model_slim import (
+        from shellflow.models.riemannian_DiTs_model_slimLGATr import (
             create_riemannian_dits_slim,
         )
 

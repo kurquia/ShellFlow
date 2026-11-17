@@ -26,7 +26,7 @@ import torch
 
 pytest.importorskip("lgatr")
 
-from shellflow.models.riemannian_DiTs_model_slim import (  # noqa: E402
+from shellflow.models.riemannian_DiTs_model_slimLGATr import (  # noqa: E402
     RiemannianSlimDiTsModel,
     SlimDiTBlock,
     join_tokens,
@@ -255,9 +255,9 @@ class TestSlimModelChecks:
         for name in [m for m in sys.modules if m == "lgatr" or m.startswith("lgatr.")]:
             monkeypatch.delitem(sys.modules, name)
         monkeypatch.setattr(sys, "meta_path", [_NoLgatr(), *sys.meta_path])
-        monkeypatch.delitem(sys.modules, "shellflow.models.riemannian_DiTs_model_slim")
+        monkeypatch.delitem(sys.modules, "shellflow.models.riemannian_DiTs_model_slimLGATr")
         with pytest.raises(ModuleNotFoundError, match="uv sync --extra gatr"):
-            importlib.import_module("shellflow.models.riemannian_DiTs_model_slim")
+            importlib.import_module("shellflow.models.riemannian_DiTs_model_slimLGATr")
 
 
 @pytest.mark.requires_data

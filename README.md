@@ -113,7 +113,7 @@ ShellFlow-B uses the current architecture in `riemannian_DiTs_model.py`. Train i
 
 ### ShellGATr
 
-ShellGATr replaces the attention blocks of ShellFlow-B with the Lorentz-equivariant L-GATr-slim layers of [lgatr](https://github.com/heidelberg-hepml/lgatr) ([arXiv:2512.17011](https://arxiv.org/abs/2512.17011)). Each token holds 32 Lorentz vectors and 96 scalars, and the model has 3,087,498 parameters. The key `backbone: lgatr_slim` in the `model:` block of a config selects it; the code is in `src/shellflow/models/riemannian_DiTs_model_slim.py`. The checkpoint is `shellgatr_2to4lep/model.ckpt`.
+ShellGATr replaces the attention blocks of ShellFlow-B with the Lorentz-equivariant L-GATr-slim layers of [lgatr](https://github.com/heidelberg-hepml/lgatr) ([arXiv:2512.17011](https://arxiv.org/abs/2512.17011)). Each token holds 32 Lorentz vectors and 96 scalars, and the model has 3,087,498 parameters. The key `backbone: lgatr_slim` in the `model:` block of a config selects it; the code is in `src/shellflow/models/riemannian_DiTs_model_slimLGATr.py`. The checkpoint is `shellgatr_2to4lep/model.ckpt`.
 
 ShellGATr needs the optional `gatr` extra, which installs lgatr at a fixed commit:
 
