@@ -160,9 +160,9 @@ generation:
   num_samples: 50000
   batch_size: 4096
   n_gen_steps: 200
-  every_n_epochs: 2               # kinematic/Higgs plots cadence (epoch-based)
+  every_n_epochs: 5               # kinematic/Higgs plots cadence (epoch-based)
   higgs:
-    enabled: false   # off in the ShellGATr run
+    enabled: true
     every_n_epochs: 10
     dataloader_config: src/shellflow/config/dataloader_config_06_2to4lep_reduced.yaml
     data_dir: data/run2_data_4lep_reduced
